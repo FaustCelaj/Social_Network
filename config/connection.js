@@ -1,14 +1,22 @@
 const mongoose = require("mongoose");
 
-mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://localhost:27017/social_network",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+const uri =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/social_network";
 
-// Use this to log mongo queries being executed!
+mongoose.connect(uri).catch((err) => {
+  console.error("Initial MongoDB connection error:", err);
+});
+
 mongoose.set("debug", true);
 
-module.exports = mongoose.connection;
+const connection = mongoose.connection;
+
+connection.on("error", (err) => {
+  console.error("MongoDB connection error:", err);
+});
+
+connection.once("open", () => {
+  console.log("MongoDB connected successfully");
+});
+
+module.exports = connection;
